@@ -1,11 +1,13 @@
 package domain
 
 import (
+	"context"
 	"strings"
 	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +22,7 @@ type User struct {
 	DeletedAt    gorm.DeletedAt `gorm:"column:deletedAt;index"`
 }
 
-type UserPayLoad struct {
+type UserPayload struct {
 	Name            string `json:"name" validate:"required,min=1,max=75"`
 	CPF             string `json:"cpf" validate:"required,cpf"`
 	Email           string `json:"email" validate:"required,email"`
@@ -29,17 +31,61 @@ type UserPayLoad struct {
 	ConfirmPassword string `json:"confirmPassword" validate:"required,eqfield=Password"`
 }
 
-func (u *UserPayLoad) trim() {
+type UserHandler interface {
+	Create(ctx echo.Context) error
+}
+
+type UserService interface {
+	Create(ctx context.Context, payload *UserPayload)
+}
+
+type UserRepository interface {
+	Create(ctx context.Context, user *User) error
+}
+
+func (u *UserPayload) trim() {
 	u.Name = strings.TrimSpace(u.Name)
 	u.CPF = strings.TrimSpace(u.CPF)
 	u.Email = strings.TrimSpace(u.Email)
 	u.ConfirmEmail = strings.TrimSpace(u.ConfirmEmail)
 }
 
-func (u *UserPayLoad) Validate() error {
+func (u *UserPayload) Validate() map[string]string {
 	u.trim()
 	validate := validator.New()
-	return validate.Struct(u)
+	err := validate.Struct(u)
+
+	validationErrors := make(map[string]string)
+
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			fieldName := strings.ToLower(err.Field())
+			validationErrors[fieldName] = getErrorMessage(err)
+		}
+	}
+
+	if len(validationErrors) > 0 {
+		return validationErrors
+	}
+
+	return nil
+}
+
+func getErrorMessage(err validator.FieldError) string {
+	switch err.Tag() {
+	case "required":
+		return "This field is required"
+	case "email":
+		return "Invalid email format"
+	case "min":
+		return "Value is too short"
+	case "max":
+		return "Value is too long"
+	case "eqfield":
+		return "Fields do not match"
+	default:
+		return "Invalid value"
+	}
 }
 
 func (User) TableName() string {
