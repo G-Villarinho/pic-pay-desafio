@@ -7,7 +7,7 @@ import (
 
 var (
 	CannotBindPayloadAPIError = NewAPIError(http.StatusUnprocessableEntity, "Invalid Request", "Failed to process the payload")
-	InternalServerAPIError    = NewAPIError(http.StatusUnprocessableEntity, "Internal Server Error", "Failed to process the payload")
+	InternalServerAPIError    = NewAPIError(http.StatusInternalServerError, "Internal Server Error", "Failed to process the payload")
 )
 
 type APIError struct {

@@ -8,13 +8,15 @@ import (
 
 	"github.com/GSVillas/pic-pay-desafio/utils"
 	"github.com/google/uuid"
+	"github.com/klassmann/cpfcnpj"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
 var (
 	ErrUserNotFound          = errors.New("user not found")
-	ErrUserAlreadyExists     = errors.New("user already exists")
+	ErrEmailAlreadyRegister  = errors.New("email already exists")
+	ErrCPFAlreadyRegister    = errors.New("cpf already exists")
 	ErrHashingPassword       = errors.New("failed to hash password")
 	ErrInvalidPassword       = errors.New("invalid password")
 	ErrUserNotFoundInContext = errors.New("user not found in context")
@@ -35,7 +37,7 @@ type UserPayload struct {
 	Name            string `json:"name" validate:"required,min=1,max=75"`
 	CPF             string `json:"cpf" validate:"required,cpf"`
 	Email           string `json:"email" validate:"required,email"`
-	ConfirmEmail    string `json:"confirmEmail" validate:"required,email,eqfield=Email"`
+	ConfirmEmail    string `json:"confirmEmail" validate:"required,eqfield=Email"`
 	Password        string `json:"password,omitempty" validate:"required,max=255,strongpassword"`
 	ConfirmPassword string `json:"confirmPassword" validate:"required,eqfield=Password"`
 }
@@ -50,18 +52,31 @@ type UserService interface {
 
 type UserRepository interface {
 	Create(ctx context.Context, user *User) error
+	GetByEmail(ctx context.Context, email string) (*User, error)
+	GetByCPF(ctx context.Context, CPF string) (*User, error)
 }
 
 func (u *UserPayload) trim() {
 	u.Name = strings.TrimSpace(u.Name)
 	u.CPF = strings.TrimSpace(u.CPF)
-	u.Email = strings.TrimSpace(u.Email)
+	u.Email = strings.TrimSpace(strings.ToLower(u.Email))
 	u.ConfirmEmail = strings.TrimSpace(u.ConfirmEmail)
 }
 
 func (u *UserPayload) Validate() map[string]string {
 	u.trim()
 	return utils.ValidateStruct(u)
+}
+
+func (u *UserPayload) ToUser(passwordHash string) *User {
+	return &User{
+		ID:           uuid.New(),
+		Name:         u.Name,
+		CPF:          string(cpfcnpj.NewCPF(u.CPF)),
+		Email:        u.Email,
+		PasswordHash: passwordHash,
+		CreatedAt:    time.Now().UTC(),
+	}
 }
 
 func (User) TableName() string {

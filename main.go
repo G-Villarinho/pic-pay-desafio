@@ -6,8 +6,11 @@ import (
 	"log"
 	"time"
 
+	"github.com/GSVillas/pic-pay-desafio/api/handler"
 	"github.com/GSVillas/pic-pay-desafio/config"
 	"github.com/GSVillas/pic-pay-desafio/config/database"
+	"github.com/GSVillas/pic-pay-desafio/repository"
+	"github.com/GSVillas/pic-pay-desafio/service"
 	"github.com/go-redis/redis/v8"
 	"github.com/labstack/echo/v4"
 	"github.com/samber/do"
@@ -42,5 +45,10 @@ func main() {
 		return redisClient, nil
 	})
 
+	do.Provide(i, handler.NewUserHandler)
+	do.Provide(i, service.NewUserService)
+	do.Provide(i, repository.NewUserRepository)
+
+	handler.SetupRoutes(e, i)
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.Env.APIPort)))
 }

@@ -52,8 +52,13 @@ func (u *userHandler) Create(ctx echo.Context) error {
 	if err := u.userService.Create(ctx.Request().Context(), &payload); err != nil {
 		log.Warn("Fail to create user", slog.Any("error", err))
 
-		if errors.Is(err, domain.ErrUserAlreadyExists) {
-			apiError := domain.NewAPIError(http.StatusConflict, "conflict", "The user already exists. Please try again with a different email.")
+		if errors.Is(err, domain.ErrEmailAlreadyRegister) {
+			apiError := domain.NewAPIError(http.StatusConflict, "conflict", "The email already registered. Please try again with a different email.")
+			return ctx.JSON(http.StatusConflict, apiError)
+		}
+
+		if errors.Is(err, domain.ErrCPFAlreadyRegister) {
+			apiError := domain.NewAPIError(http.StatusConflict, "conflict", "The cpf already registered. Please try again with a different cpf.")
 			return ctx.JSON(http.StatusConflict, apiError)
 		}
 
