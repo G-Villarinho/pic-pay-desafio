@@ -5,6 +5,11 @@ import (
 	"net/http"
 )
 
+var (
+	CannotBindPayloadAPIError = NewAPIError(http.StatusUnprocessableEntity, "Invalid Request", "Failed to process the payload")
+	InternalServerAPIError    = NewAPIError(http.StatusUnprocessableEntity, "Internal Server Error", "Failed to process the payload")
+)
+
 type APIError struct {
 	Status int               `json:"status"`
 	Title  string            `json:"title"`

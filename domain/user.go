@@ -2,13 +2,22 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"time"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/GSVillas/pic-pay-desafio/utils"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
+)
+
+var (
+	ErrUserNotFound          = errors.New("user not found")
+	ErrUserAlreadyExists     = errors.New("user already exists")
+	ErrHashingPassword       = errors.New("failed to hash password")
+	ErrInvalidPassword       = errors.New("invalid password")
+	ErrUserNotFoundInContext = errors.New("user not found in context")
 )
 
 type User struct {
@@ -36,7 +45,7 @@ type UserHandler interface {
 }
 
 type UserService interface {
-	Create(ctx context.Context, payload *UserPayload)
+	Create(ctx context.Context, payload *UserPayload) error
 }
 
 type UserRepository interface {
@@ -52,40 +61,7 @@ func (u *UserPayload) trim() {
 
 func (u *UserPayload) Validate() map[string]string {
 	u.trim()
-	validate := validator.New()
-	err := validate.Struct(u)
-
-	validationErrors := make(map[string]string)
-
-	if err != nil {
-		for _, err := range err.(validator.ValidationErrors) {
-			fieldName := strings.ToLower(err.Field())
-			validationErrors[fieldName] = getErrorMessage(err)
-		}
-	}
-
-	if len(validationErrors) > 0 {
-		return validationErrors
-	}
-
-	return nil
-}
-
-func getErrorMessage(err validator.FieldError) string {
-	switch err.Tag() {
-	case "required":
-		return "This field is required"
-	case "email":
-		return "Invalid email format"
-	case "min":
-		return "Value is too short"
-	case "max":
-		return "Value is too long"
-	case "eqfield":
-		return "Fields do not match"
-	default:
-		return "Invalid value"
-	}
+	return utils.ValidateStruct(u)
 }
 
 func (User) TableName() string {

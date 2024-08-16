@@ -1,67 +1,46 @@
 package utils
 
 import (
-	"strconv"
 	"strings"
-
-	"github.com/dlclark/regexp2"
 
 	"github.com/go-playground/validator/v10"
 )
 
-func SetupCustomValidations(validator *validator.Validate) {
-	validator.RegisterValidation("strongpassword", strongPasswordValidator)
-	validator.RegisterValidation("cpf", cpfValidator)
+var validationMessages = map[string]string{
+	"required":       "This field is required",
+	"email":          "Invalid email format",
+	"min":            "Value is too short",
+	"max":            "Value is too long",
+	"eqfield":        "Fields do not match",
+	"cpf":            "Invalid CPF format",
+	"strongpassword": "Password must be at least 8 characters long, contain an uppercase letter, a number, and a special character",
 }
 
-func strongPasswordValidator(fl validator.FieldLevel) bool {
-	pattern := `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$&*])[A-Za-z\d!@#$&*]{8,}$`
+func ValidateStruct(s any) map[string]string {
+	validate := validator.New()
 
-	re := regexp2.MustCompile(pattern, 0)
+	SetupCustomValidations(validate)
 
-	match, _ := re.MatchString(fl.Field().String())
-	return match
+	err := validate.Struct(s)
+	validationErrors := make(map[string]string)
+
+	if err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			fieldName := strings.ToLower(err.Field())
+			validationErrors[fieldName] = getErrorMessage(err)
+		}
+	}
+
+	if len(validationErrors) == 0 {
+		return nil
+	}
+
+	return validationErrors
 }
 
-func cpfValidator(fl validator.FieldLevel) bool {
-	cpf := fl.Field().String()
-
-	cpf = strings.ReplaceAll(cpf, ".", "")
-	cpf = strings.ReplaceAll(cpf, "-", "")
-
-	if len(cpf) != 11 {
-		return false
+func getErrorMessage(err validator.FieldError) string {
+	if msg, exists := validationMessages[err.Tag()]; exists {
+		return msg
 	}
-
-	if cpf == strings.Repeat(string(cpf[0]), 11) {
-		return false
-	}
-
-	return isValidCPF(cpf)
-}
-
-func isValidCPF(cpf string) bool {
-	var sum1, sum2, digit1, digit2 int
-	for i := 0; i < 9; i++ {
-		num, _ := strconv.Atoi(string(cpf[i]))
-		sum1 += num * (10 - i)
-		sum2 += num * (11 - i)
-	}
-
-	digit1 = (sum1 * 10) % 11
-	if digit1 == 10 {
-		digit1 = 0
-	}
-
-	if digit1 != int(cpf[9]-'0') {
-		return false
-	}
-
-	sum2 = digit1 * 2
-	digit2 = (sum2 * 10) % 11
-	if digit2 == 10 {
-		digit2 = 0
-	}
-
-	return digit2 == int(cpf[10]-'0')
+	return "Invalid value"
 }

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 
@@ -37,18 +38,28 @@ func (u *userHandler) Create(ctx echo.Context) error {
 	var payload domain.UserPayload
 	if err := ctx.Bind(&payload); err != nil {
 		log.Warn("Failed to bind payload", slog.String("error", err.Error()))
-		apiError := domain.NewAPIError(http.StatusUnprocessableEntity, "Invalid Request", "Failed to process the payload").
-			WithErrors(map[string]string{"binding": "Failed to bind payload"})
-		return ctx.JSON(apiError.Status, apiError)
+		return ctx.JSON(http.StatusUnprocessableEntity, domain.CannotBindPayloadAPIError)
 	}
 
-	errors := payload.Validate()
-	if errors != nil {
-		log.Warn("Validation failed", slog.Any("errors", errors))
+	validationErrors := payload.Validate()
+	if validationErrors != nil {
+		log.Warn("Validation failed", slog.Any("errors", validationErrors))
 		apiError := domain.NewAPIError(http.StatusBadRequest, "Validation Failed", "One or more fields failed validation").
-			WithErrors(errors)
+			WithErrors(validationErrors)
 		return ctx.JSON(apiError.Status, apiError)
 	}
 
-	return ctx.JSON(http.StatusCreated, "User created successfully")
+	if err := u.userService.Create(ctx.Request().Context(), &payload); err != nil {
+		log.Warn("Fail to create user", slog.Any("error", err))
+
+		if errors.Is(err, domain.ErrUserAlreadyExists) {
+			apiError := domain.NewAPIError(http.StatusConflict, "conflict", "The user already exists. Please try again with a different email.")
+			return ctx.JSON(http.StatusConflict, apiError)
+		}
+
+		return ctx.JSON(http.StatusInternalServerError, domain.InternalServerAPIError)
+	}
+
+	log.Info("User created successfully")
+	return ctx.NoContent(http.StatusCreated)
 }
