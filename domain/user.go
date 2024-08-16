@@ -33,6 +33,10 @@ type User struct {
 	DeletedAt    gorm.DeletedAt `gorm:"column:deletedAt;index"`
 }
 
+func (User) TableName() string {
+	return "User"
+}
+
 type UserPayload struct {
 	Name            string `json:"name" validate:"required,min=1,max=75"`
 	CPF             string `json:"cpf" validate:"required,cpf"`
@@ -42,12 +46,23 @@ type UserPayload struct {
 	ConfirmPassword string `json:"confirmPassword" validate:"required,eqfield=Password"`
 }
 
+type SignInPayload struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password,omitempty" validate:"required"`
+}
+
+type SignInResponse struct {
+	Token string `json:"token"`
+}
+
 type UserHandler interface {
 	Create(ctx echo.Context) error
+	SignIn(ctx echo.Context) error
 }
 
 type UserService interface {
 	Create(ctx context.Context, payload *UserPayload) error
+	SignIn(ctx context.Context, payload *SignInPayload) (*SignInResponse, error)
 }
 
 type UserRepository interface {
@@ -60,12 +75,21 @@ func (u *UserPayload) trim() {
 	u.Name = strings.TrimSpace(u.Name)
 	u.CPF = strings.TrimSpace(u.CPF)
 	u.Email = strings.TrimSpace(strings.ToLower(u.Email))
-	u.ConfirmEmail = strings.TrimSpace(u.ConfirmEmail)
+	u.ConfirmEmail = strings.TrimSpace(strings.ToLower(u.ConfirmEmail))
+}
+
+func (s *SignInPayload) trim() {
+	s.Email = strings.TrimSpace(strings.ToLower(s.Email))
 }
 
 func (u *UserPayload) Validate() map[string]string {
 	u.trim()
 	return utils.ValidateStruct(u)
+}
+
+func (s *SignInPayload) Validate() map[string]string {
+	s.trim()
+	return utils.ValidateStruct(s)
 }
 
 func (u *UserPayload) ToUser(passwordHash string) *User {
@@ -77,8 +101,4 @@ func (u *UserPayload) ToUser(passwordHash string) *User {
 		PasswordHash: passwordHash,
 		CreatedAt:    time.Now().UTC(),
 	}
-}
-
-func (User) TableName() string {
-	return "User"
 }

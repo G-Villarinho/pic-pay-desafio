@@ -48,6 +48,8 @@ func main() {
 	do.Provide(i, handler.NewUserHandler)
 	do.Provide(i, service.NewUserService)
 	do.Provide(i, repository.NewUserRepository)
+	do.Provide(i, service.NewSessionService)
+	do.Provide(i, repository.NewUserRepository)
 
 	handler.SetupRoutes(e, i)
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.Env.APIPort)))

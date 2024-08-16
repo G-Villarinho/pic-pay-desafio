@@ -1,5 +1,7 @@
 package models
 
+import "crypto/ecdsa"
+
 type Environment struct {
 	ConnectionString string `env:"CONNECTION_STRING"`
 	RedisAdress      string `env:"REDIS_ADRESS"`
@@ -8,4 +10,6 @@ type Environment struct {
 	APIPort          string `env:"API_PORT"`
 	TokenExp         int    `env:"TOKEN_EXP"`
 	ResendKey        string `env:"RESEND_KEY"`
+	PrivateKey       *ecdsa.PrivateKey
+	PublicKey        *ecdsa.PublicKey
 }
