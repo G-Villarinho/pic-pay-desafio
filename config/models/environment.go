@@ -8,7 +8,7 @@ type Environment struct {
 	RedisPassword    string `env:"REDIS_PASSWORD"`
 	RedisDB          int    `env:"REDIS_DB"`
 	APIPort          string `env:"API_PORT"`
-	TokenExp         int    `env:"TOKEN_EXP"`
+	SessionExp       int    `env:"SESSION_EXP"`
 	ResendKey        string `env:"RESEND_KEY"`
 	PrivateKey       *ecdsa.PrivateKey
 	PublicKey        *ecdsa.PublicKey
