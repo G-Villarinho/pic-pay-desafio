@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/GSVillas/pic-pay-desafio/api/handler"
+	"github.com/GSVillas/pic-pay-desafio/client"
 	"github.com/GSVillas/pic-pay-desafio/config"
 	"github.com/GSVillas/pic-pay-desafio/config/database"
 	"github.com/GSVillas/pic-pay-desafio/repository"
@@ -37,6 +39,8 @@ func main() {
 		log.Fatal("Fail to connect to redis: ", err)
 	}
 
+	httpClient := http.Client{Timeout: 15 * time.Second}
+
 	do.Provide(i, func(i *do.Injector) (*gorm.DB, error) {
 		return db, nil
 	})
@@ -45,11 +49,18 @@ func main() {
 		return redisClient, nil
 	})
 
+	do.Provide(i, func(i *do.Injector) (*http.Client, error) {
+		return &httpClient, nil
+	})
+
 	do.Provide(i, handler.NewUserHandler)
 	do.Provide(i, handler.NewWalletHandler)
+
+	do.Provide(i, client.NewAuthorizationService)
 	do.Provide(i, service.NewUserService)
-	do.Provide(i, service.NewWalletService)
 	do.Provide(i, service.NewSessionService)
+	do.Provide(i, service.NewWalletService)
+
 	do.Provide(i, repository.NewUserRepository)
 	do.Provide(i, repository.NewSessionRepository)
 	do.Provide(i, repository.NewWalletRepository)
