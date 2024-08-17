@@ -1,9 +1,12 @@
 package domain
 
 import (
+	"context"
 	"time"
 
+	"github.com/GSVillas/pic-pay-desafio/utils"
 	"github.com/google/uuid"
+	"github.com/labstack/echo/v4"
 )
 
 type Transaction struct {
@@ -24,4 +27,20 @@ func (Transaction) TableName() string {
 type TransactionPayload struct {
 	PayeeID uuid.UUID `json:"payeeId" validate:"required,uuid"`
 	Value   float64   `json:"value" validate:"required,gt=0"`
+}
+
+type TransactionHandler interface {
+	Create(echo.Context) error
+}
+
+type TransactionService interface {
+	Create(ctx context.Context, payload *TransactionPayload)
+}
+
+type TransactionRepository interface {
+	Create(ctx context.Context, transaction *Transaction)
+}
+
+func (t *TransactionPayload) Validate() map[string]string {
+	return utils.ValidateStruct(t)
 }
