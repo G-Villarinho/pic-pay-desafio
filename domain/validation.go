@@ -7,13 +7,15 @@ import (
 )
 
 var validationMessages = map[string]string{
-	"required":       "This field is required",
-	"email":          "Invalid email format",
-	"min":            "Value is too short",
-	"max":            "Value is too long",
-	"eqfield":        "Fields do not match",
-	"cpf":            "Invalid CPF format",
-	"strongpassword": "Password must be at least 8 characters long, contain an uppercase letter, a number, and a special character",
+	"required":        "This field is required",
+	"email":           "Invalid email format",
+	"min":             "Value is too short",
+	"max":             "Value is too long",
+	"eqfield":         "Fields do not match",
+	CPFTag:            "Invalid CPF format",
+	StrongPasswordTag: "Password must be at least 8 characters long, contain an uppercase letter, a number, and a special character",
+	UUIDTag:           "Invalid uuid format",
+	WalletTypeTag:     "Invalid wallet type",
 }
 
 func ValidateStruct(s any) map[string]string {

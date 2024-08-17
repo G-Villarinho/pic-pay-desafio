@@ -7,6 +7,13 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+const (
+	StrongPasswordTag = "strongpassword"
+	CPFTag            = "cpf"
+	UUIDTag           = "uuid"
+	WalletTypeTag     = "wallettype"
+)
+
 func SetupCustomValidations(validator *validator.Validate) {
 	validator.RegisterValidation("strongpassword", strongPasswordValidator)
 	validator.RegisterValidation("cpf", cpfValidator)
