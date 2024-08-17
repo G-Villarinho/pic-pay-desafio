@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/GSVillas/pic-pay-desafio/utils"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
@@ -42,5 +41,5 @@ type TransactionRepository interface {
 }
 
 func (t *TransactionPayload) Validate() map[string]string {
-	return utils.ValidateStruct(t)
+	return ValidateStruct(t)
 }

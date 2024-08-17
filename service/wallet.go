@@ -5,7 +5,6 @@ import (
 	"log/slog"
 
 	"github.com/GSVillas/pic-pay-desafio/domain"
-	"github.com/GSVillas/pic-pay-desafio/domain/types"
 	"github.com/samber/do"
 )
 
@@ -34,7 +33,7 @@ func (w *walletService) Create(ctx context.Context, payload *domain.WalletPayloa
 
 	log.Info("Initializing create wallet process")
 
-	session, ok := ctx.Value(types.SessionKey).(*domain.Session)
+	session, ok := ctx.Value(domain.SessionKey).(*domain.Session)
 	if !ok || session == nil {
 		return domain.ErrSessionNotFound
 	}

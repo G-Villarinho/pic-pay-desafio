@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/GSVillas/pic-pay-desafio/domain"
-	"github.com/GSVillas/pic-pay-desafio/domain/types"
 	"github.com/labstack/echo/v4"
 	"github.com/samber/do"
 )
@@ -43,7 +42,7 @@ func CheckLoggedIn(i *do.Injector) echo.MiddlewareFunc {
 				return ctx.JSON(http.StatusInternalServerError, domain.InternalServerAPIError)
 			}
 
-			newCtx := context.WithValue(ctx.Request().Context(), types.SessionKey, session)
+			newCtx := context.WithValue(ctx.Request().Context(), domain.SessionKey, session)
 			ctx.SetRequest(ctx.Request().WithContext(newCtx))
 
 			return next(ctx)

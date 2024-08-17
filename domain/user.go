@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/GSVillas/pic-pay-desafio/utils"
 	"github.com/google/uuid"
 	"github.com/klassmann/cpfcnpj"
 	"github.com/labstack/echo/v4"
@@ -84,12 +83,12 @@ func (s *SignInPayload) trim() {
 
 func (u *UserPayload) Validate() map[string]string {
 	u.trim()
-	return utils.ValidateStruct(u)
+	return ValidateStruct(u)
 }
 
 func (s *SignInPayload) Validate() map[string]string {
 	s.trim()
-	return utils.ValidateStruct(s)
+	return ValidateStruct(s)
 }
 
 func (u *UserPayload) ToUser(passwordHash string) *User {

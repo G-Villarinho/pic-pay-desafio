@@ -1,7 +1,6 @@
-package utils
+package domain
 
 import (
-	"github.com/GSVillas/pic-pay-desafio/domain/types"
 	"github.com/dlclark/regexp2"
 	"github.com/klassmann/cpfcnpj"
 
@@ -40,7 +39,7 @@ func uuidValidator(fl validator.FieldLevel) bool {
 }
 
 func walletTypeValidator(fl validator.FieldLevel) bool {
-	walletType, ok := fl.Field().Interface().(types.WalletType)
+	walletType, ok := fl.Field().Interface().(WalletType)
 	if !ok {
 		return false
 	}
