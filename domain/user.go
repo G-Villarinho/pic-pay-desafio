@@ -66,6 +66,7 @@ type UserService interface {
 
 type UserRepository interface {
 	Create(ctx context.Context, user *User) error
+	GetByID(ctx context.Context, ID uuid.UUID) (*User, error)
 	GetByEmail(ctx context.Context, email string) (*User, error)
 	GetByCPF(ctx context.Context, CPF string) (*User, error)
 }

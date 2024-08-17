@@ -2,10 +2,17 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+)
+
+var (
+	ErrInsufficientBalance             = errors.New("insufficient balance for the transaction")
+	ErrTransferNotAuthorized           = errors.New("authorization service not authorized this transfer")
+	ErrTransferNotAllowedForWalletType = errors.New("this wallet type is not allowed to transfer")
 )
 
 type Transaction struct {
@@ -33,11 +40,11 @@ type TransactionHandler interface {
 }
 
 type TransactionService interface {
-	Create(ctx context.Context, payload *TransactionPayload)
+	Create(ctx context.Context, payload *TransactionPayload) error
 }
 
 type TransactionRepository interface {
-	Create(ctx context.Context, transaction *Transaction)
+	Create(ctx context.Context, transaction *Transaction) error
 }
 
 func (t *TransactionPayload) Validate() map[string]string {

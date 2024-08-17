@@ -10,7 +10,11 @@ import (
 )
 
 var (
-	ErrWalletAlredyRegister = errors.New("the user already has a wallet")
+	ErrGetWallet                 = errors.New("error when trying to obtain wallet")
+	ErrPayeeWalletNotFound       = errors.New("payee's wallet not found")
+	ErrPayerWalletNotFound       = errors.New("payer's wallet not found")
+	ErrSelfTransactionNotAllowed = errors.New("payer cannot perform transfers to themselves")
+	ErrWalletAlredyRegister      = errors.New("the user already has a wallet")
 )
 
 type Wallet struct {

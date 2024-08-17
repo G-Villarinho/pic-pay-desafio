@@ -7,6 +7,7 @@ import (
 
 	"github.com/GSVillas/pic-pay-desafio/domain"
 	"github.com/go-redis/redis/v8"
+	"github.com/google/uuid"
 	"github.com/samber/do"
 	"gorm.io/gorm"
 )
@@ -94,5 +95,28 @@ func (u *userRepository) GetByCPF(ctx context.Context, CPF string) (*domain.User
 	}
 
 	log.Info("Process of obtaining user by cpf executed successfully")
+	return user, nil
+}
+
+func (u *userRepository) GetByID(ctx context.Context, ID uuid.UUID) (*domain.User, error) {
+	log := slog.With(
+		slog.String("repository", "user"),
+		slog.String("func", "GetByID"),
+	)
+
+	log.Info("Initializing process of obtaining user by ID")
+
+	var user *domain.User
+	if err := u.db.WithContext(ctx).Where("id = ?", ID).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Warn("User not found")
+			return nil, nil
+		}
+
+		log.Error("Failed to get user by id", slog.String("error", err.Error()))
+		return nil, err
+	}
+
+	log.Info("Process of obtaining user by id executed successfully")
 	return user, nil
 }

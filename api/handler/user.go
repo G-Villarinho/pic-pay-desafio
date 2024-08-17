@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/GSVillas/pic-pay-desafio/domain"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/labstack/echo/v4"
 	"github.com/samber/do"
 )
@@ -36,8 +37,8 @@ func (u *userHandler) Create(ctx echo.Context) error {
 	log.Info("Initializing user creation process")
 
 	var payload domain.UserPayload
-	if err := ctx.Bind(&payload); err != nil {
-		log.Warn("Failed to bind payload", slog.String("error", err.Error()))
+	if err := jsoniter.NewDecoder(ctx.Request().Body).Decode(&payload); err != nil {
+		log.Warn("Failed to decode JSON payload", slog.String("error", err.Error()))
 		return ctx.JSON(http.StatusUnprocessableEntity, domain.CannotBindPayloadAPIError)
 	}
 
