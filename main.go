@@ -46,10 +46,13 @@ func main() {
 	})
 
 	do.Provide(i, handler.NewUserHandler)
+	do.Provide(i, handler.NewWalletHandler)
 	do.Provide(i, service.NewUserService)
-	do.Provide(i, repository.NewUserRepository)
+	do.Provide(i, service.NewWalletService)
 	do.Provide(i, service.NewSessionService)
+	do.Provide(i, repository.NewUserRepository)
 	do.Provide(i, repository.NewSessionRepository)
+	do.Provide(i, repository.NewWalletRepository)
 
 	handler.SetupRoutes(e, i)
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", config.Env.APIPort)))

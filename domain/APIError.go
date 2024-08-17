@@ -8,6 +8,7 @@ import (
 var (
 	CannotBindPayloadAPIError = NewAPIError(http.StatusUnprocessableEntity, "Invalid Request", "Failed to process the payload")
 	InternalServerAPIError    = NewAPIError(http.StatusInternalServerError, "Internal Server Error", "Failed to process the payload")
+	SessionNotFoundAPIError   = NewAPIError(http.StatusForbidden, "Authentication Required", "You must be logged in to perform this action. Please log in and try again.")
 )
 
 type APIError struct {

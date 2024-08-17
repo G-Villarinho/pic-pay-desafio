@@ -77,7 +77,7 @@ func (u *userService) Create(ctx context.Context, payload *domain.UserPayload) e
 		return err
 	}
 
-	log.Info("user creation process executed successfully")
+	log.Info("User creation process executed successfully")
 	return nil
 }
 
@@ -97,7 +97,7 @@ func (u *userService) SignIn(ctx context.Context, payload *domain.SignInPayload)
 
 	if user == nil {
 		log.Warn("No user found with this ", slog.String("email:", payload.Email))
-		return nil, domain.ErrEmailAlreadyRegister
+		return nil, domain.ErrUserNotFound
 	}
 
 	if err := secure.CheckPassword(user.PasswordHash, payload.Password); err != nil {

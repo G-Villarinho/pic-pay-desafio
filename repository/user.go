@@ -81,6 +81,7 @@ func (u *userRepository) GetByCPF(ctx context.Context, CPF string) (*domain.User
 	)
 
 	log.Info("Initializing process of obtaining user by CPF")
+
 	var user *domain.User
 	if err := u.db.WithContext(ctx).Where("cpf = ?", CPF).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -92,5 +93,6 @@ func (u *userRepository) GetByCPF(ctx context.Context, CPF string) (*domain.User
 		return nil, err
 	}
 
+	log.Info("Process of obtaining user by cpf executed successfully")
 	return user, nil
 }

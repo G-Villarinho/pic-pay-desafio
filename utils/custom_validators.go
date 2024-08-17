@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/GSVillas/pic-pay-desafio/domain/types"
 	"github.com/dlclark/regexp2"
 	"github.com/klassmann/cpfcnpj"
 
@@ -11,6 +12,7 @@ func SetupCustomValidations(validator *validator.Validate) {
 	validator.RegisterValidation("strongpassword", strongPasswordValidator)
 	validator.RegisterValidation("cpf", cpfValidator)
 	validator.RegisterValidation("uuid", uuidValidator)
+	validator.RegisterValidation("wallettype", walletTypeValidator)
 }
 
 func strongPasswordValidator(fl validator.FieldLevel) bool {
@@ -35,4 +37,12 @@ func uuidValidator(fl validator.FieldLevel) bool {
 
 	match, _ := re.MatchString(fl.Field().String())
 	return match
+}
+
+func walletTypeValidator(fl validator.FieldLevel) bool {
+	walletType, ok := fl.Field().Interface().(types.WalletType)
+	if !ok {
+		return false
+	}
+	return walletType.IsValid()
 }

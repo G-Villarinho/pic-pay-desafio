@@ -78,6 +78,7 @@ func (u *userHandler) SignIn(ctx echo.Context) error {
 	)
 
 	log.Info("Initializing user sign in process")
+
 	var payload domain.SignInPayload
 	if err := ctx.Bind(&payload); err != nil {
 		log.Warn("Failed to bind payload", slog.String("error", err.Error()))

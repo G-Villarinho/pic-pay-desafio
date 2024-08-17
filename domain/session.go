@@ -16,10 +16,10 @@ var (
 )
 
 type Session struct {
-	Token  string
-	Name   string
-	UserID uuid.UUID
-	Email  string
+	Token  string    `json:"token"`
+	Name   string    `json:"name"`
+	UserID uuid.UUID `json:"picPayId"`
+	Email  string    `json:"email"`
 }
 
 type SessionService interface {
