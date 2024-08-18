@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 var (
@@ -15,15 +16,18 @@ var (
 	ErrPayerWalletNotFound       = errors.New("payer's wallet not found")
 	ErrSelfTransactionNotAllowed = errors.New("payer cannot perform transfers to themselves")
 	ErrWalletAlredyRegister      = errors.New("the user already has a wallet")
+	ErrDebitWallet               = errors.New("failed to debit the wallet")
+	ErrCreditWallet              = errors.New("failed to credit the wallet")
 )
 
 type Wallet struct {
-	UserID    uuid.UUID  `gorm:"column:userId;type:char(36);primaryKey"`
-	User      User       `gorm:"foreignKey:UserID"`
-	Type      WalletType `gorm:"column:type;type:tinyint;not null;index"`
-	Balance   float64    `gorm:"column:Balance;type:decimal(15, 2);not null"`
-	CreatedAt time.Time  `gorm:"column:createdAt;index"`
-	UpdatedAt time.Time  `gorm:"column:updatedAt"`
+	UserID    uuid.UUID      `gorm:"column:userId;type:char(36);primaryKey"`
+	User      User           `gorm:"foreignKey:UserID"`
+	Type      WalletType     `gorm:"column:type;type:tinyint;not null;index"`
+	Balance   float64        `gorm:"column:balance;type:decimal(15, 2);not null"`
+	CreatedAt time.Time      `gorm:"column:createdAt;not null"`
+	UpdatedAt time.Time      `gorm:"column:updatedAt;default:NULL"`
+	DeletedAt gorm.DeletedAt `gorm:"column:deletedAt;index"`
 }
 
 func (Wallet) TableName() string {

@@ -23,12 +23,12 @@ var (
 
 type User struct {
 	ID           uuid.UUID      `gorm:"column:id;type:char(36);primaryKey"`
-	Name         string         `gorm:"column:name;type:varchar(255);not null;index"`
+	Name         string         `gorm:"column:name;type:varchar(255);not null"`
 	CPF          string         `gorm:"column:cpf;type:char(11);uniqueIndex;not null"`
 	Email        string         `gorm:"column:email;type:varchar(255);uniqueIndex;not null"`
 	PasswordHash string         `gorm:"column:passwordHash;type:varchar(255);not null"`
-	CreatedAt    time.Time      `gorm:"column:createdAt;index"`
-	UpdatedAt    time.Time      `gorm:"column:updatedAt"`
+	CreatedAt    time.Time      `gorm:"column:createdAt;not null"`
+	UpdatedAt    time.Time      `gorm:"column:updatedAt;default:NULL"`
 	DeletedAt    gorm.DeletedAt `gorm:"column:deletedAt;index"`
 }
 

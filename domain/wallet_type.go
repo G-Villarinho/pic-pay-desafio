@@ -3,8 +3,8 @@ package domain
 type WalletType uint8
 
 const (
-	WalletTypeCOMMON WalletType = iota
-	WalletTypeMERCHANT
+	WalletTypeCOMMON   WalletType = 1
+	WalletTypeMERCHANT WalletType = 2
 )
 
 func (wt WalletType) IsValid() bool {

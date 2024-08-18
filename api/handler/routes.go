@@ -10,6 +10,7 @@ import (
 func SetupRoutes(e *echo.Echo, i *do.Injector) {
 	setupUserRoutes(e, i)
 	setupWalletRoutes(e, i)
+	setupTransferRoutes(e, i)
 }
 
 func setupUserRoutes(e *echo.Echo, i *do.Injector) {
@@ -31,4 +32,14 @@ func setupWalletRoutes(e *echo.Echo, i *do.Injector) {
 
 	group := e.Group("v1/wallets", middleware.CheckLoggedIn(i))
 	group.POST("", walletHandler.Create)
+}
+
+func setupTransferRoutes(e *echo.Echo, i *do.Injector) {
+	transferHandler, err := do.Invoke[domain.TransferHandler](i)
+	if err != nil {
+		panic(err)
+	}
+
+	group := e.Group("v1/transfers", middleware.CheckLoggedIn(i))
+	group.POST("", transferHandler.Transfer)
 }

@@ -10,14 +10,14 @@ import (
 )
 
 type transactionService struct {
-	i                     *do.Injector
-	transactionRepository domain.TransactionRepository
-	walletRepository      domain.WalletRepository
-	authorizationService  client.AuthorizationService
+	i                    *do.Injector
+	transferRepository   domain.TransferRepository
+	walletRepository     domain.WalletRepository
+	authorizationService client.AuthorizationService
 }
 
-func NewTransactionService(i *do.Injector) (domain.TransactionService, error) {
-	transactionRepository, err := do.Invoke[domain.TransactionRepository](i)
+func NewTransferService(i *do.Injector) (domain.TransferService, error) {
+	transactionRepository, err := do.Invoke[domain.TransferRepository](i)
 	if err != nil {
 		return nil, err
 	}
@@ -33,17 +33,17 @@ func NewTransactionService(i *do.Injector) (domain.TransactionService, error) {
 	}
 
 	return &transactionService{
-		i:                     i,
-		transactionRepository: transactionRepository,
-		walletRepository:      walletRepository,
-		authorizationService:  authorizationService,
+		i:                    i,
+		transferRepository:   transactionRepository,
+		walletRepository:     walletRepository,
+		authorizationService: authorizationService,
 	}, nil
 }
 
-func (t *transactionService) Create(ctx context.Context, payload *domain.TransactionPayload) error {
+func (t *transactionService) Transfer(ctx context.Context, payload *domain.TransferPayload) error {
 	log := slog.With(
 		slog.String("service", "transaction"),
-		slog.String("func", "Create"),
+		slog.String("func", "Transfer"),
 	)
 
 	log.Info("Initializing create transaction process")
@@ -69,13 +69,47 @@ func (t *transactionService) Create(ctx context.Context, payload *domain.Transac
 		return domain.ErrPayerWalletNotFound
 	}
 
+	payee, err := t.walletRepository.GetByUserID(ctx, payload.PayeeID)
+	if err != nil {
+		log.Error("Failed to get wallet by userID ", slog.String("Error", err.Error()))
+		return domain.ErrGetWallet
+	}
+
+	if payee == nil {
+		log.Warn("No wallets were found for this user", slog.String("userId", payload.PayeeID.String()))
+		return domain.ErrPayeeWalletNotFound
+	}
+
+	if err := t.validateTransfer(ctx, payload, payer); err != nil {
+		log.Warn("Transfer validation failed", slog.String("error", err.Error()))
+		return err
+	}
+
+	transaction := payload.ToTansaction(payer.UserID)
+	if err := t.transferRepository.Transfer(ctx, transaction); err != nil {
+		log.Error("Failed to create transaction the user's wallet", slog.String("error", err.Error()))
+		return domain.ErrCreateTransfer
+	}
+
+	log.Info("Session retrieved successfully")
+	return nil
+}
+
+func (t *transactionService) validateTransfer(ctx context.Context, payload *domain.TransferPayload, payer *domain.Wallet) error {
+	log := slog.With(
+		slog.String("service", "transaction"),
+		slog.String("func", "validateTransfer"),
+	)
+
+	log.Info("Initializing validation transfer process")
+
 	if payer.Type == domain.WalletTypeMERCHANT {
 		log.Warn("Transfer not allowed for merchant wallet", slog.String("walletType", "MERCHANT"))
 		return domain.ErrTransferNotAllowedForWalletType
 	}
 
 	if payer.Balance < payload.Value {
-		log.Warn("Insufficient balance for transaction", slog.String("userID", session.UserID.String()))
+		log.Warn("Insufficient balance for transaction")
 		return domain.ErrInsufficientBalance
 	}
 
@@ -90,16 +124,6 @@ func (t *transactionService) Create(ctx context.Context, payload *domain.Transac
 		return domain.ErrTransferNotAuthorized
 	}
 
-	payee, err := t.walletRepository.GetByUserID(ctx, payload.PayeeID)
-	if err != nil {
-		log.Error("Failed to get wallet by userID ", slog.String("Error: ", err.Error()))
-		return domain.ErrGetWallet
-	}
-
-	if payee == nil {
-		log.Warn("No wallets were found for this user", slog.String("userId: ", payload.PayeeID.String()))
-		return domain.ErrPayeeWalletNotFound
-	}
-
+	log.Info("Validation transfer process successfully")
 	return nil
 }

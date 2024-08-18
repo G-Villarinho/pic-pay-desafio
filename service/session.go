@@ -89,7 +89,7 @@ func (s *sessionService) GetSession(ctx context.Context, token string) (*domain.
 		return nil, domain.ErrSessionMismatch
 	}
 
-	log.Info("Session retrieved successfully", slog.Any("userID", sessionToken.UserID))
+	log.Info("Session retrieved successfully", slog.String("userID", sessionToken.UserID.String()))
 	return session, nil
 }
 

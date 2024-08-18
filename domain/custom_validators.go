@@ -2,6 +2,7 @@ package domain
 
 import (
 	"github.com/dlclark/regexp2"
+	"github.com/google/uuid"
 	"github.com/klassmann/cpfcnpj"
 
 	"github.com/go-playground/validator/v10"
@@ -37,12 +38,9 @@ func cpfValidator(fl validator.FieldLevel) bool {
 }
 
 func uuidValidator(fl validator.FieldLevel) bool {
-	pattern := `^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$`
+	_, err := uuid.Parse(fl.Field().String())
 
-	re := regexp2.MustCompile(pattern, 0)
-
-	match, _ := re.MatchString(fl.Field().String())
-	return match
+	return err != nil
 }
 
 func walletTypeValidator(fl validator.FieldLevel) bool {

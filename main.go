@@ -39,7 +39,7 @@ func main() {
 		log.Fatal("Fail to connect to redis: ", err)
 	}
 
-	httpClient := http.Client{Timeout: 15 * time.Second}
+	httpClient := &http.Client{Timeout: 10 * time.Second}
 
 	do.Provide(i, func(i *do.Injector) (*gorm.DB, error) {
 		return db, nil
@@ -50,17 +50,21 @@ func main() {
 	})
 
 	do.Provide(i, func(i *do.Injector) (*http.Client, error) {
-		return &httpClient, nil
+		return httpClient, nil
 	})
 
+	do.Provide(i, client.NewAuthorizationService)
+
+	do.Provide(i, handler.NewTransferHandler)
 	do.Provide(i, handler.NewUserHandler)
 	do.Provide(i, handler.NewWalletHandler)
 
-	do.Provide(i, client.NewAuthorizationService)
+	do.Provide(i, service.NewTransferService)
 	do.Provide(i, service.NewUserService)
 	do.Provide(i, service.NewSessionService)
 	do.Provide(i, service.NewWalletService)
 
+	do.Provide(i, repository.NewTransferRepository)
 	do.Provide(i, repository.NewUserRepository)
 	do.Provide(i, repository.NewSessionRepository)
 	do.Provide(i, repository.NewWalletRepository)
