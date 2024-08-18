@@ -53,18 +53,18 @@ func (u *userHandler) Create(ctx echo.Context) error {
 	if err := u.userService.Create(ctx.Request().Context(), &payload); err != nil {
 
 		if errors.Is(err, domain.ErrEmailAlreadyRegister) {
-			log.Warn("Fail to create user", slog.Any("error", err))
+			log.Warn("Fail to create user", slog.String("error", err.Error()))
 			apiError := domain.NewAPIError(http.StatusConflict, "conflict", "The email already registered. Please try again with a different email.")
 			return ctx.JSON(http.StatusConflict, apiError)
 		}
 
 		if errors.Is(err, domain.ErrCPFAlreadyRegister) {
-			log.Warn("Fail to create user", slog.Any("error", err))
+			log.Warn("Fail to create user", slog.String("error", err.Error()))
 			apiError := domain.NewAPIError(http.StatusConflict, "conflict", "The cpf already registered. Please try again with a different cpf.")
 			return ctx.JSON(http.StatusConflict, apiError)
 		}
 
-		log.Error("Fail to create user", slog.Any("error", err))
+		log.Error("Fail to create user", slog.String("error", err.Error()))
 		return ctx.JSON(http.StatusInternalServerError, domain.InternalServerAPIError)
 	}
 
@@ -98,12 +98,12 @@ func (u *userHandler) SignIn(ctx echo.Context) error {
 	if err != nil {
 
 		if errors.Is(err, domain.ErrUserNotFound) || errors.Is(err, domain.ErrInvalidPassword) {
-			log.Warn("Fail to excute user sign in", slog.Any("error", err))
+			log.Warn("Fail to excute user sign in", slog.String("error", err.Error()))
 			apiError := domain.NewAPIError(http.StatusUnauthorized, "Unauthorized credentials", "Unauthorized credentials. Review the data sent")
 			return ctx.JSON(http.StatusUnauthorized, apiError)
 		}
 
-		log.Error("Fail to create user", slog.Any("error", err))
+		log.Error("Fail to create user", slog.String("error", err.Error()))
 		return ctx.JSON(http.StatusInternalServerError, domain.InternalServerAPIError)
 	}
 

@@ -63,7 +63,7 @@ func (w *walletHandler) Create(ctx echo.Context) error {
 			return ctx.JSON(http.StatusConflict, apiError)
 		}
 
-		log.Error("Fail to create user wallet", slog.Any("error", err))
+		log.Error("Fail to create user wallet", slog.String("error", err.Error()))
 		return ctx.JSON(http.StatusInternalServerError, domain.InternalServerAPIError)
 	}
 

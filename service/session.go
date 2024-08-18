@@ -109,7 +109,7 @@ func (s *sessionService) createToken(user *domain.User) (string, error) {
 
 	tokenString, err := token.SignedString(config.Env.PrivateKey)
 	if err != nil {
-		log.Error("Error to signed token string", slog.Any("error:", err.Error()))
+		log.Error("Error to signed token string", slog.String("error", err.Error()))
 		return "", err
 	}
 
@@ -135,7 +135,7 @@ func (s *sessionService) extractSessionFromToken(tokenString string) (*domain.Se
 	})
 
 	if err != nil {
-		log.Error("Failed to parse token", slog.Any("error: ", err.Error()))
+		log.Error("Failed to parse token", slog.String("error ", err.Error()))
 		return nil, err
 	}
 
@@ -152,7 +152,7 @@ func (s *sessionService) extractSessionFromToken(tokenString string) (*domain.Se
 
 	sessionJSON, err := jsoniter.Marshal(claims)
 	if err != nil {
-		log.Error("Failed to marshal claims to JSON", slog.Any("error: ", err.Error()))
+		log.Error("Failed to marshal claims to JSON", slog.String("error ", err.Error()))
 		return nil, err
 	}
 
@@ -161,7 +161,7 @@ func (s *sessionService) extractSessionFromToken(tokenString string) (*domain.Se
 	var session domain.Session
 	err = jsoniter.Unmarshal(sessionJSON, &session)
 	if err != nil {
-		log.Error("Failed to unmarshal JSON to session struct", slog.Any("error: ", err.Error()))
+		log.Error("Failed to unmarshal JSON to session struct", slog.String("error ", err.Error()))
 		return nil, err
 	}
 
