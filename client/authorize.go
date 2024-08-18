@@ -1,5 +1,7 @@
 package client
 
+//go:generate mockgen -source=authorize.go -destination=../mocks/authorize_mock.go -package=mocks
+
 import (
 	"context"
 	"errors"

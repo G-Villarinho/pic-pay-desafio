@@ -45,7 +45,7 @@ func (u *userService) Create(ctx context.Context, payload *domain.UserPayload) e
 	user, err := u.userRepository.GetByEmail(ctx, payload.Email)
 	if err != nil {
 		log.Error("Failed to get user by email", slog.String("error", err.Error()))
-		return err
+		return domain.ErrGetUserByCPF
 	}
 
 	if user != nil {
@@ -56,7 +56,7 @@ func (u *userService) Create(ctx context.Context, payload *domain.UserPayload) e
 	user, err = u.userRepository.GetByCPF(ctx, string(cpfcnpj.NewCPF(payload.CPF)))
 	if err != nil {
 		log.Error("Failed to get user by cpf", slog.String("error", err.Error()))
-		return err
+		return domain.ErrGetUserByCPF
 	}
 
 	if user != nil {
@@ -74,7 +74,7 @@ func (u *userService) Create(ctx context.Context, payload *domain.UserPayload) e
 
 	if err := u.userRepository.Create(ctx, user); err != nil {
 		log.Error("Failed to create user", slog.String("error", err.Error()))
-		return err
+		return domain.ErrCreateUser
 	}
 
 	log.Info("User creation process executed successfully")
@@ -92,7 +92,7 @@ func (u *userService) SignIn(ctx context.Context, payload *domain.SignInPayload)
 	user, err := u.userRepository.GetByEmail(ctx, payload.Email)
 	if err != nil {
 		log.Error("Failed to get user by email", slog.String("error", err.Error()))
-		return nil, err
+		return nil, domain.ErrGetUserByEmail
 	}
 
 	if user == nil {
@@ -108,7 +108,7 @@ func (u *userService) SignIn(ctx context.Context, payload *domain.SignInPayload)
 	token, err := u.sessionService.Create(ctx, user)
 	if err != nil {
 		log.Error("Was not possible create the session for the user", slog.String("error:", err.Error()))
-		return nil, err
+		return nil, domain.ErrCreateSession
 	}
 
 	log.Info("user sign in process executed successfully")

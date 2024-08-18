@@ -21,6 +21,9 @@ var (
 	ErrHashingPassword       = errors.New("failed to hash password")
 	ErrInvalidPassword       = errors.New("invalid password")
 	ErrUserNotFoundInContext = errors.New("user not found in context")
+	ErrCreateUser            = errors.New("create user fail")
+	ErrGetUserByEmail        = errors.New("get user by email fail")
+	ErrGetUserByCPF          = errors.New("get user by cpf fail")
 )
 
 type User struct {

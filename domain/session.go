@@ -1,5 +1,7 @@
 package domain
 
+//go:generate mockgen -source=session.go -destination=../mocks/session_mock.go -package=mocks
+
 import (
 	"context"
 	"errors"
@@ -13,6 +15,7 @@ var (
 	ErrorUnexpectedMethod     = errors.New("unexpected signing method")
 	ErrTokenNotFoundInContext = errors.New("token not found in context")
 	ErrSessionMismatch        = errors.New("session icompatible for user requested")
+	ErrCreateSession          = errors.New("create session fails")
 )
 
 type Session struct {
