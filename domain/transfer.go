@@ -1,5 +1,7 @@
 package domain
 
+//go:generate mockgen -source=transfer.go -destination=../mocks/transfer_mock.go -package=mocks
+
 import (
 	"context"
 	"errors"

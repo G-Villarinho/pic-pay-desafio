@@ -1,5 +1,7 @@
 package domain
 
+//go:generate mockgen -source=wallet.go -destination=../mocks/wallet_mock.go -package=mocks
+
 import (
 	"context"
 	"errors"
